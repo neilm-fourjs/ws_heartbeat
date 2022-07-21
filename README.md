@@ -31,7 +31,7 @@ https://_server_/_gas alias_/ws/r/ws_heartbeat/HeartBeat/info
 ```
 
 
-https://_server_/_gas alias_/ws/r/ws_heartbeat/HeartBeat/info**?db=test**
+https://_server_/_gas alias_/ws/r/ws_heartbeat/HeartBeat/info?db=test
 ```
 {
   "server": "ubuntu",
@@ -51,7 +51,7 @@ https://_server_/_gas alias_/ws/r/ws_heartbeat/HeartBeat/info**?db=test**
 ```
 
 
-https://_server_/_gas alias_/ws/r/ws_heartbeat/HeartBeat/info**?db=njm_demo310**
+https://_server_/_gas alias_/ws/r/ws_heartbeat/HeartBeat/info?db=njm_demo310
 ```
 {
   "server": "ubuntu",
