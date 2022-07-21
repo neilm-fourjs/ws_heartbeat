@@ -1,30 +1,54 @@
 IMPORT com
 IMPORT util
 IMPORT FGL logging
-DEFINE m_service       STRING
-DEFINE m_service_desc  STRING
-PUBLIC DEFINE m_server STRING
+TYPE t_response RECORD
+	server      STRING,
+	pid         STRING,
+	statDesc    STRING,
+	server_date DATE,
+	server_time DATETIME HOUR TO SECOND,
+	genero_ver  STRING,
+	default_db  STRING
+END RECORD
+PUBLIC DEFINE response t_response
 PUBLIC DEFINE m_stop   BOOLEAN = FALSE
+
+DEFINE m_service      STRING
+DEFINE m_service_desc STRING
 ----------------------------------------------------------------------------------------------------
 -- Initialize the service - Start the log and connect to database.
 FUNCTION init(l_service STRING, l_service_desc STRING) RETURNS BOOLEAN
-	LET m_service      = l_service
-	LET m_service_desc = l_service_desc
-	LET m_server       = fgl_getEnv("HOSTNAME")
-  RETURN TRUE
+	DEFINE c base.Channel
+	LET m_service       = l_service
+	LET m_service_desc  = l_service_desc
+	LET response.pid    = fgl_getPID()
+	LET response.server = fgl_getEnv("HOSTNAME")
+	IF response.server IS NULL THEN
+		LET c = base.Channel.create()
+		CALL c.openPipe("hostname -f", "r")
+		LET response.server = c.readLine()
+		CALL c.close()
+	END IF
+	LET response.default_db = base.Application.getResourceEntry("dbi.default")
+	IF response.default_db IS NULL THEN
+		LET response.default_db = "dbmdefault.so"
+	END IF
+	LET response.genero_ver = fgl_getVersion()
+	CALL logging.logIt("init", SFMT("Server: %1", response.server))
+	RETURN TRUE
 END FUNCTION
 ----------------------------------------------------------------------------------------------------
 -- Start the service loop
-FUNCTION start()
+FUNCTION process()
 	DEFINE l_ret SMALLINT
 	DEFINE l_msg STRING
 
 	CALL com.WebServiceEngine.RegisterRestService(m_service, m_service_desc)
 
-	LET l_msg = SFMT("Service '%1' started on '%2'.", m_service, m_server)
+	LET l_msg = SFMT("Service '%1' started on '%2'.", m_service, response.server)
 	CALL com.WebServiceEngine.Start()
 	WHILE TRUE
-		CALL logging.logIt(SFMT("Start: %1", l_msg))
+		CALL logging.logIt("process", l_msg)
 		LET l_ret = com.WebServiceEngine.ProcessServices(-1)
 		CASE l_ret
 			WHEN 0
@@ -38,6 +62,8 @@ FUNCTION start()
 				LET l_msg = "Client Connection lost."
 			WHEN -4
 				LET l_msg = "Server interrupted with Ctrl-C."
+			WHEN -8
+				LET l_msg = "Internal HTTP Error."
 			WHEN -9
 				LET l_msg = "Unsupported operation."
 			WHEN -10
@@ -61,34 +87,28 @@ FUNCTION start()
 			EXIT WHILE
 		END IF
 	END WHILE
-	CALL logging.logIt(SFMT("Server stopped: %1", l_msg))
+	CALL logging.logIt("process", "Server stopped.")
 
-END FUNCTION
-----------------------------------------------------------------------------------------------------
--- Just exit the service
-FUNCTION exit() ATTRIBUTES(WSGet, WSPath = "/exit", WSDescription = "Exit the service") RETURNS STRING
-	CALL logging.logIt("Server stopped by 'exit' call")
-	LET m_stop = TRUE
-	RETURN service_reply("Service Stopped.")
 END FUNCTION
 ----------------------------------------------------------------------------------------------------
 -- Format the string reply from the service function
-FUNCTION service_reply(l_stat STRING) RETURNS STRING
-  DEFINE response RECORD
-   server STRING,
-   pid string,
-	 statDesc STRING,
-	 server_date     DATE,
-	 server_time     DATETIME HOUR TO SECOND
-  END RECORD
-  DEFINE l_reply STRING
-  LET response.server_date = TODAY
-  LET response.server_time = CURRENT
-  LET response.statDesc = l_stat
-  LET response.pid = fgl_getPID()
-  LET response.server = m_server
+FUNCTION service_reply(l_req STRING, l_stat STRING, l_jstr STRING) RETURNS STRING
+	DEFINE l_reply STRING
+	DEFINE l_json  util.JSONObject
+	LET response.server_date = TODAY
+	LET response.server_time = CURRENT
+	LET response.statDesc    = l_stat
 
-  LET l_reply = util.JSON.stringify(response)
-	CALL logging.logIt(l_reply)
+	IF l_req = "info" THEN
+		LET l_reply = util.JSON.stringify(response)
+	ELSE
+		LET l_reply = l_stat
+	END IF
+	IF l_jstr IS NOT NULL THEN
+		LET l_json = util.JSONObject.parse(l_reply)
+		CALL l_json.put("info", util.JSONObject.parse(l_jstr))
+		LET l_reply = l_json.toString()
+	END IF
+	CALL logging.logIt("service_reply", l_reply)
 	RETURN l_reply
 END FUNCTION

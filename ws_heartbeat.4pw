@@ -64,7 +64,7 @@
   </Settings>
   <LanguageList version="1.0"/>
   <PlatformList version="1.0"/>
-  <Group environment="value:FGLAPPSERVER=9090" id="75644415" label="Server" language="Genero">
+  <Group environment="value:FGLWSDEBUG=0,value:FGLAPPSERVER=9090" id="75644415" label="Server" language="Genero">
     <Library binaryName="etc" id="1928668432" label="etc">
       <File filePath="etc/heartbeat.xcf"/>
     </Library>
