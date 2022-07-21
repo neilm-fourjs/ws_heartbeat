@@ -13,20 +13,36 @@ END FUNCTION
 PUBLIC FUNCTION info(l_db STRING ATTRIBUTE(WSQuery, WSOptional, WSName = "db"))
 		ATTRIBUTES(WSGet, WSPath = "/info", WSDescription = "Returns information about server") RETURNS STRING
 	DEFINE l_ret RECORD
-		db_name   STRING,
-		db_status STRING
+		def_dbdriver STRING,
+		db_driver    STRING,
+		db_name      STRING,
+		db_status    STRING
 	END RECORD
-	CALL logging.logIt("info", "Returning information.")
+	CALL logging.logIt("info", SFMT("Returning information db='%1'.", l_db))
+
+	LET l_ret.def_dbdriver = base.Application.getResourceEntry("dbi.default.driver")
+	IF l_ret.def_dbdriver IS NULL THEN
+		LET l_ret.def_dbdriver = "dbmdefault"
+	END IF
+
 	IF l_db IS NULL THEN
 		LET l_ret.db_name = "No Database Name"
-	ELSE
-		LET l_ret.db_name = l_db
-		TRY
-			DATABASE l_db
-		CATCH
-			LET l_ret.db_status = SQLERRMESSAGE
-		END TRY
+		RETURN ws_lib.service_reply("info", "Okay", util.JSON.stringify(l_ret))
 	END IF
+
+	LET l_ret.db_driver = base.Application.getResourceEntry(SFMT("dbi.%1.driver", l_db))
+	IF l_ret.db_driver IS NULL THEN
+		LET l_ret.db_driver = "Not defined in fglprofile"
+	END IF
+
+	LET l_ret.db_name = l_db
+	TRY
+		DATABASE l_db
+		LET l_ret.db_status = "Okay"
+	CATCH
+		LET l_ret.db_status = SQLERRMESSAGE
+	END TRY
+
 	RETURN ws_lib.service_reply("info", "Okay", util.JSON.stringify(l_ret))
 END FUNCTION
 ----------------------------------------------------------------------------------------------------

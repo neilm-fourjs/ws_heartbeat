@@ -1,14 +1,17 @@
 IMPORT com
 IMPORT util
 IMPORT FGL logging
+
+CONSTANT C_VER = "1.0"
+
 TYPE t_response RECORD
 	server      STRING,
 	pid         STRING,
+  service_ver STRING,
 	statDesc    STRING,
 	server_date DATE,
 	server_time DATETIME HOUR TO SECOND,
-	genero_ver  STRING,
-	default_db  STRING
+	genero_ver  STRING
 END RECORD
 PUBLIC DEFINE response t_response
 PUBLIC DEFINE m_stop   BOOLEAN = FALSE
@@ -23,15 +26,12 @@ FUNCTION init(l_service STRING, l_service_desc STRING) RETURNS BOOLEAN
 	LET m_service_desc  = l_service_desc
 	LET response.pid    = fgl_getPID()
 	LET response.server = fgl_getEnv("HOSTNAME")
+  LET response.service_ver = C_VER
 	IF response.server IS NULL THEN
 		LET c = base.Channel.create()
 		CALL c.openPipe("hostname -f", "r")
 		LET response.server = c.readLine()
 		CALL c.close()
-	END IF
-	LET response.default_db = base.Application.getResourceEntry("dbi.default")
-	IF response.default_db IS NULL THEN
-		LET response.default_db = "dbmdefault.so"
 	END IF
 	LET response.genero_ver = fgl_getVersion()
 	CALL logging.logIt("init", SFMT("Server: %1", response.server))
