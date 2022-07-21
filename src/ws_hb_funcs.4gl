@@ -15,6 +15,7 @@ PUBLIC FUNCTION info(l_db STRING ATTRIBUTE(WSQuery, WSOptional, WSName = "db"))
 	DEFINE l_ret RECORD
 		def_dbdriver STRING,
 		db_driver    STRING,
+    db_date      STRING,
 		db_name      STRING,
 		db_status    STRING
 	END RECORD
@@ -24,6 +25,7 @@ PUBLIC FUNCTION info(l_db STRING ATTRIBUTE(WSQuery, WSOptional, WSName = "db"))
 	IF l_ret.def_dbdriver IS NULL THEN
 		LET l_ret.def_dbdriver = "dbmdefault"
 	END IF
+  LET l_ret.db_date = fgl_getEnv("DBDATE")
 
 	IF l_db IS NULL THEN
 		LET l_ret.db_name = "No Database Name"
@@ -48,7 +50,17 @@ END FUNCTION
 ----------------------------------------------------------------------------------------------------
 -- Just exit the service
 FUNCTION exit() ATTRIBUTES(WSGet, WSPath = "/exit", WSDescription = "Exit the service") RETURNS STRING
-	CALL logging.logIt("exit", "Stoping service.")
+	CALL logging.logIt("exit", "Stopping service.")
 	LET ws_lib.m_stop = TRUE
 	RETURN service_reply("exit", "Stopped", NULL)
+END FUNCTION
+----------------------------------------------------------------------------------------------------
+-- dump the env to the gas vm log
+FUNCTION env() ATTRIBUTES(WSGet, WSPath = "/env", WSDescription = "Dump Env") RETURNS STRING
+  DEFINE l_log STRING
+	CALL logging.logIt("env", "env")
+  RUN "env | sort"
+  -- I assume it's -0 not sure how to pickup the number if there are multiple instances running!
+  LET l_log = SFMT("vm-%1-0.log", fgl_getEnv("FGL_VMPROXY_SESSION_ID"))
+	RETURN service_reply("env", SFMT("Env Dumped to '%1'",l_log), NULL)
 END FUNCTION
