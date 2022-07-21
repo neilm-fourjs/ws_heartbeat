@@ -1,16 +1,19 @@
 IMPORT com
 IMPORT util
+IMPORT os
 IMPORT FGL logging
 
 CONSTANT C_VER = "1.0"
 
 TYPE t_response RECORD
 	server      STRING,
+	os_ver      STRING,
 	pid         STRING,
   service_ver STRING,
 	statDesc    STRING,
 	server_date DATE,
 	server_time DATETIME HOUR TO SECOND,
+	lang        STRING,
 	genero_ver  STRING
 END RECORD
 PUBLIC DEFINE response t_response
@@ -22,17 +25,28 @@ DEFINE m_service_desc STRING
 -- Initialize the service - Start the log and connect to database.
 FUNCTION init(l_service STRING, l_service_desc STRING) RETURNS BOOLEAN
 	DEFINE c base.Channel
+	DEFInE l_os STRING
 	LET m_service       = l_service
 	LET m_service_desc  = l_service_desc
 	LET response.pid    = fgl_getPID()
 	LET response.server = fgl_getEnv("HOSTNAME")
   LET response.service_ver = C_VER
+	LET response.lang   = fgl_getEnv("LANG")
 	IF response.server IS NULL THEN
 		LET c = base.Channel.create()
 		CALL c.openPipe("hostname -f", "r")
 		LET response.server = c.readLine()
 		CALL c.close()
 	END IF
+	IF os.Path.exists("/etc/issue") THEN LET l_os = "/etc/issue" END IF
+	IF os.Path.exists("/etc/redhat-release") THEN LET l_os = "/etc/redhat-release" END IF
+	IF l_os IS NOT NULL THEN
+		LET c = base.Channel.create()
+		CALL c.openFile(l_os, "r")
+		LET response.os_ver = c.readLine()
+		CALL c.close()
+	END IF
+
 	LET response.genero_ver = fgl_getVersion()
 	CALL logging.logIt("init", SFMT("Server: %1", response.server))
 	RETURN TRUE
