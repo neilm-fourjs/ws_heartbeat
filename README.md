@@ -11,7 +11,7 @@ Options
 
 The 'info' request can also take a parameter of 'db' and it will attempt to connect to that database, ie:
 
-https://<server>/<gas alias>/ws/r/ws_heartbeat/HeartBeat/info
+https://_server_/_gas alias_/ws/r/ws_heartbeat/HeartBeat/info
 ```
 {
   "server": "neilm-Predator",
@@ -28,7 +28,7 @@ https://<server>/<gas alias>/ws/r/ws_heartbeat/HeartBeat/info
 ```
 
 
-https://<server>/<gas alias>/ws/r/ws_heartbeat/HeartBeat/info?db=test
+https://_server_/_gas alias_/ws/r/ws_heartbeat/HeartBeat/info?db=test
 ```
 {
   "server": "neilm-Predator",
