@@ -99,12 +99,13 @@ FUNCTION service_reply(l_req STRING, l_stat STRING, l_jstr STRING) RETURNS STRIN
 	LET response.server_time = CURRENT
 	LET response.statDesc    = l_stat
 
-	IF l_req = "info" THEN
+	IF l_req = "info" OR l_req = "env" THEN
 		LET l_reply = util.JSON.stringify(response)
 	ELSE
 		LET l_reply = l_stat
 	END IF
 	IF l_jstr IS NOT NULL THEN
+	  CALL logging.logIt("service_reply", SFMT("json '%1'", l_jstr))
 		LET l_json = util.JSONObject.parse(l_reply)
 		CALL l_json.put("info", util.JSONObject.parse(l_jstr))
 		LET l_reply = l_json.toString()

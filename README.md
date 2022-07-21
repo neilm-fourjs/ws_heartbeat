@@ -8,6 +8,7 @@ A simple REST API heartbeat service
 * status : reply should be 'Okay'
 * exit   : stops the services and should reply 'Stopped'
 * info   : reply is a JSON string.
+* env    : dump the env to the vm log and supply it in the json response.
 
 **NOTE:** The 'info' request can also take a parameter of 'db' and it will attempt to connect to that database, ie:
 
@@ -25,6 +26,7 @@ https://_server_/_gas alias_/ws/r/ws_heartbeat/HeartBeat/info
   "genero_ver": "32016",
   "info": {
     "def_dbdriver": "dbmdefault",
+    "db_date": "DMY4/",
     "db_name": "No Database Name"
   }
 }
@@ -44,6 +46,7 @@ https://_server_/_gas alias_/ws/r/ws_heartbeat/HeartBeat/info?db=test
   "info": {
     "def_dbdriver": "dbmpgs",
     "db_driver": "Not defined in fglprofile",
+    "db_date": "DMY4/",
     "db_name": "test",
     "db_status": "FATAL:  database \"test\" does not exist"
   }
