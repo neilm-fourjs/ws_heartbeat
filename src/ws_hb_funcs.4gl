@@ -68,6 +68,10 @@ FUNCTION env() ATTRIBUTES(WSGet, WSPath = "/env", WSDescription = "Dump Env") RE
 	DEFINE i SMALLINT = 0
   DEFINE x SMALLINT
   DEFINE l_line STRING
+
+	CALL logging.logIt("env", "env")
+  RUN "env | sort"
+
 	LET c = base.Channel.create()
 	CALL c.openPipe("env","r")
 	WHILE NOT c.isEof()
@@ -77,8 +81,7 @@ FUNCTION env() ATTRIBUTES(WSGet, WSPath = "/env", WSDescription = "Dump Env") RE
 		LET l_env.env[i].value = l_line.subString(x+1,l_line.getLength())
 	END WHILE
 	CALL c.close()
-	CALL logging.logIt("env", "env")
-  RUN "env | sort"
+  CALL l_env.env.sort("name",FALSE)
   -- I assume it's -0 not sure how to pickup the number if there are multiple instances running!
   LET l_log = SFMT("vm-%1-0.log", fgl_getEnv("FGL_VMPROXY_SESSION_ID"))
 	RETURN service_reply("env", SFMT("Env Dumped to '%1'",l_log), util.JSON.stringify(l_env))
