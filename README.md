@@ -14,7 +14,7 @@ A simple REST API heartbeat service
 
 ## Examples
 
-https://_server_/_gas alias_/ws/r/ws_heartbeat/HeartBeat/info
+https://_server_/_gas alias_/ws/r/heartbeat/HeartBeat/info
 ```
 {
   "server": "neilm-Predator",
@@ -33,7 +33,7 @@ https://_server_/_gas alias_/ws/r/ws_heartbeat/HeartBeat/info
 ```
 
 
-https://_server_/_gas alias_/ws/r/ws_heartbeat/HeartBeat/info?db=test
+https://_server_/_gas alias_/ws/r/heartbeat/HeartBeat/info?db=test
 ```
 {
   "server": "ubuntu",
@@ -54,7 +54,7 @@ https://_server_/_gas alias_/ws/r/ws_heartbeat/HeartBeat/info?db=test
 ```
 
 
-https://_server_/_gas alias_/ws/r/ws_heartbeat/HeartBeat/info?db=njm_demo310
+https://_server_/_gas alias_/ws/r/heartbeat/HeartBeat/info?db=njm_demo310
 ```
 {
   "server": "ubuntu",
