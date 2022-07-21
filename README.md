@@ -1,13 +1,15 @@
 
-ws_heartbeat
+# ws_heartbeat
 
 A simple REST API heartbeat service
 
-Options
+## Options
 
 * status : reply should be 'Okay'
 * exit   : stops the services and should reply 'Stopped'
 * info   : reply is a JSON string.
+
+## Examples
 
 The 'info' request can also take a parameter of 'db' and it will attempt to connect to that database, ie:
 
@@ -22,7 +24,7 @@ https://_server_/_gas alias_/ws/r/ws_heartbeat/HeartBeat/info
   "server_time": "10:16:24",
   "genero_ver": "32016",
   "info": {
- 		"def_dbdriver": "dbmdefault",
+    "def_dbdriver": "dbmdefault",
     "db_name": "No Database Name"
   }
 }
