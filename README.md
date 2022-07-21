@@ -9,9 +9,9 @@ A simple REST API heartbeat service
 * exit   : stops the services and should reply 'Stopped'
 * info   : reply is a JSON string.
 
-## Examples
+**NOTE:** The 'info' request can also take a parameter of 'db' and it will attempt to connect to that database, ie:
 
-The 'info' request can also take a parameter of 'db' and it will attempt to connect to that database, ie:
+## Examples
 
 https://_server_/_gas alias_/ws/r/ws_heartbeat/HeartBeat/info
 ```
@@ -31,7 +31,7 @@ https://_server_/_gas alias_/ws/r/ws_heartbeat/HeartBeat/info
 ```
 
 
-https://_server_/_gas alias_/ws/r/ws_heartbeat/HeartBeat/info?db=test
+https://_server_/_gas alias_/ws/r/ws_heartbeat/HeartBeat/info**?db=test**
 ```
 {
   "server": "ubuntu",
@@ -51,7 +51,7 @@ https://_server_/_gas alias_/ws/r/ws_heartbeat/HeartBeat/info?db=test
 ```
 
 
-https://_server_/_gas alias_/ws/r/ws_heartbeat/HeartBeat/info?db=njm_demo310
+https://_server_/_gas alias_/ws/r/ws_heartbeat/HeartBeat/info**?db=njm_demo310**
 ```
 {
   "server": "ubuntu",
