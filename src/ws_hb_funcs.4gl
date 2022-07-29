@@ -15,7 +15,7 @@ PUBLIC FUNCTION info(l_db STRING ATTRIBUTE(WSQuery, WSOptional, WSName = "db"))
 	DEFINE l_ret RECORD
 		def_dbdriver STRING,
 		db_driver    STRING,
-    db_date      STRING,
+		db_date      STRING,
 		db_name      STRING,
 		db_status    STRING
 	END RECORD
@@ -25,7 +25,7 @@ PUBLIC FUNCTION info(l_db STRING ATTRIBUTE(WSQuery, WSOptional, WSName = "db"))
 	IF l_ret.def_dbdriver IS NULL THEN
 		LET l_ret.def_dbdriver = "dbmdefault"
 	END IF
-  LET l_ret.db_date = fgl_getEnv("DBDATE")
+	LET l_ret.db_date = fgl_getEnv("DBDATE")
 
 	IF l_db IS NULL THEN
 		LET l_ret.db_name = "No Database Name"
@@ -57,32 +57,32 @@ END FUNCTION
 ----------------------------------------------------------------------------------------------------
 -- dump the env to the gas vm log
 FUNCTION env() ATTRIBUTES(WSGet, WSPath = "/env", WSDescription = "Dump Env") RETURNS STRING
-  DEFINE l_log STRING
+	DEFINE l_log STRING
 	DEFINE l_env RECORD
-    env DYNAMIC ARRAY OF RECORD
-      name STRING,
-      value STRING
-    END RECORD
-  END RECORD
-	DEFINE c base.Channel
-	DEFINE i SMALLINT = 0
-  DEFINE x SMALLINT
-  DEFINE l_line STRING
+		env DYNAMIC ARRAY OF RECORD
+			name  STRING,
+			value STRING
+		END RECORD
+	END RECORD
+	DEFINE c      base.Channel
+	DEFINE i      SMALLINT = 0
+	DEFINE x      SMALLINT
+	DEFINE l_line STRING
 
 	CALL logging.logIt("env", "env")
-  RUN "env | sort"
+	RUN "env | sort"
 
 	LET c = base.Channel.create()
-	CALL c.openPipe("env","r")
+	CALL c.openPipe("env", "r")
 	WHILE NOT c.isEof()
-    LET l_line = c.readLine()
-    LET x = l_line.getIndexOf("=",1)
-		LET l_env.env[i:=i+1].name = l_line.subString(1,x-1)
-		LET l_env.env[i].value = l_line.subString(x+1,l_line.getLength())
+		LET l_line                     = c.readLine()
+		LET x                          = l_line.getIndexOf("=", 1)
+		LET l_env.env[i := i + 1].name = l_line.subString(1, x - 1)
+		LET l_env.env[i].value         = l_line.subString(x + 1, l_line.getLength())
 	END WHILE
 	CALL c.close()
-  CALL l_env.env.sort("name",FALSE)
-  -- I assume it's -0 not sure how to pickup the number if there are multiple instances running!
-  LET l_log = SFMT("vm-%1-0.log", fgl_getEnv("FGL_VMPROXY_SESSION_ID"))
-	RETURN service_reply("env", SFMT("Env Dumped to '%1'",l_log), util.JSON.stringify(l_env))
+	CALL l_env.env.sort("name", FALSE)
+	-- I assume it's -0 not sure how to pickup the number if there are multiple instances running!
+	LET l_log = SFMT("vm-%1-0.log", fgl_getEnv("FGL_VMPROXY_SESSION_ID"))
+	RETURN service_reply("env", SFMT("Env Dumped to '%1'", l_log), util.JSON.stringify(l_env))
 END FUNCTION
