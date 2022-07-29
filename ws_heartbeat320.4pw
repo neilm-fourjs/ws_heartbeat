@@ -64,7 +64,7 @@
   </Settings>
   <LanguageList version="1.0"/>
   <PlatformList version="1.0"/>
-  <Group environment="value:FGLWSDEBUG=0,value:FGLAPPSERVER=9090" id="75644415" label="Server" language="Genero" targetDirectory="$(ProjectDir)/bin320">
+  <Group environment="value:DBUSERx=neilm,value:DBNAME=njm_demo310,value:DBDRIVER=dbmpgs,value:DBSOURCEx=localhost:5432,value:FGLWSDEBUG=0,value:FGLAPPSERVER=9090" id="75644415" label="Server" language="Genero" targetDirectory="$(ProjectDir)/bin320">
     <Library binaryName="etc" id="1928668432" label="etc">
       <File filePath="etc/heartbeat.xcf"/>
     </Library>

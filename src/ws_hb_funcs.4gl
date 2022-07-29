@@ -17,29 +17,39 @@ PUBLIC FUNCTION info(l_db STRING ATTRIBUTE(WSQuery, WSOptional, WSName = "db"))
 		db_driver    STRING,
 		db_date      STRING,
 		db_name      STRING,
-		db_status    STRING
+		db_source    STRING,
+		db_status    STRING,
+    db_user      STRING,
+    db_connect   STRING
 	END RECORD
+  DEFINE l_db_pass STRING
+ 
 	CALL logging.logIt("info", SFMT("Returning information db='%1'.", l_db))
 
-	LET l_ret.def_dbdriver = base.Application.getResourceEntry("dbi.default.driver")
-	IF l_ret.def_dbdriver IS NULL THEN
-		LET l_ret.def_dbdriver = "dbmdefault"
-	END IF
 	LET l_ret.db_date = fgl_getEnv("DBDATE")
 
 	IF l_db IS NULL THEN
-		LET l_ret.db_name = "No Database Name"
-		RETURN ws_lib.service_reply("info", "Okay", util.JSON.stringify(l_ret))
+		LET l_ret.db_name = fgl_getEnv("DBNAME")
+  ELSE
+    LET l_ret.db_name = l_db
 	END IF
 
-	LET l_ret.db_driver = base.Application.getResourceEntry(SFMT("dbi.%1.driver", l_db))
-	IF l_ret.db_driver IS NULL THEN
-		LET l_ret.db_driver = "Not defined in fglprofile"
-	END IF
-
-	LET l_ret.db_name = l_db
+  LET l_ret.db_user = fgl_getEnv("DBUSER")
+  LET l_db_pass = fgl_getEnv("DBPASS")
+  LET l_ret.db_source = fgl_getEnv("DBSOURCE")
+  LET l_ret.db_driver = fgl_getEnv("DBDRIVER")
+  LET l_ret.db_connect = SFMT("%1+driver='%2'", l_ret.db_name, l_ret.db_driver)
+  IF l_ret.db_source IS NOT NULL THEN
+    LET l_ret.db_connect = l_ret.db_connect.append(SFMT(",source='%1@%2'", l_ret.db_name, l_ret.db_source))
+  END IF
+  IF l_ret.db_user IS NOT NULL THEN
+    LET l_ret.db_connect = l_ret.db_connect.append(SFMT(",username='%1'", l_ret.db_user))
+  END IF
+  IF l_db_pass IS NOT NULL THEN
+    LET l_ret.db_connect = l_ret.db_connect.append(SFMT(",password='%1'", l_db_pass))
+  END IF
 	TRY
-		DATABASE l_db
+		CONNECT TO l_ret.db_connect
 		LET l_ret.db_status = "Okay"
 	CATCH
 		LET l_ret.db_status = SQLERRMESSAGE
