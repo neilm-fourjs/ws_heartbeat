@@ -17,7 +17,7 @@ TYPE t_response RECORD
 	lang        STRING,
 	genero_ver  STRING
 END RECORD
-PUBLIC DEFINE response t_response  ATTRIBUTE(XMLName="info")
+PUBLIC DEFINE response t_response ATTRIBUTE(XMLName = "info")
 PUBLIC DEFINE m_stop   BOOLEAN = FALSE
 
 DEFINE m_service      STRING
@@ -75,20 +75,20 @@ FUNCTION process()
 			WHEN -1
 				LET l_msg = "Timeout reached."
 			WHEN -2
-				LET l_msg = "Disconnected from application server."
-        LET m_stop = TRUE # The Application server has closed the connection
+				LET l_msg  = "Disconnected from application server."
+				LET m_stop = TRUE # The Application server has closed the connection
 			WHEN -3
 				LET l_msg = "Client Connection lost."
 			WHEN -4
 				LET l_msg = "Server interrupted with Ctrl-C."
 			WHEN -8
-				LET l_msg = "Internal HTTP Error."
-        LET m_stop = TRUE
+				LET l_msg  = "Internal HTTP Error."
+				LET m_stop = TRUE
 			WHEN -9
 				LET l_msg = "Unsupported operation."
 			WHEN -10
-				LET l_msg = "Internal server error."
-        LET m_stop = TRUE
+				LET l_msg  = "Internal server error."
+				LET m_stop = TRUE
 			WHEN -23
 				LET l_msg = "Deserialization error."
 			WHEN -35
@@ -137,8 +137,8 @@ FUNCTION service_reply(l_req STRING, l_stat STRING, l_jstr STRING) RETURNS STRIN
 		LET l_xml_doc = xml.DomDocument.Create()
 		LET l_xml     = l_xml_doc.createElement("info")
 		CALL xml.Serializer.VariableToDom(response, l_xml)
-    LET l_xml = l_xml.getFirstChild()
-    CALL l_xml.setAttribute("test","This is a test")
+		LET l_xml = l_xml.getFirstChild()
+		CALL l_xml.setAttribute("test", "This is a test")
 		CALL l_json.put("xml", l_xml.toString())
 
 		LET l_reply = l_json.toString()

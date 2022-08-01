@@ -1,0 +1,7 @@
+{
+	"dbnam": "njm_demo310",
+	"dbdrv": "dbmpgs",
+	"dbsrc": "localhost:5432",
+	"dbusr": "neilm",
+	"dbpas": "test"
+}

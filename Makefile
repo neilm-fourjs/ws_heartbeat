@@ -1,4 +1,6 @@
 
+URL=http://localhost:9090/HeartBeat
+
 all: distbin/ws_heartbeat320.gar distbin/ws_heartbeat401.gar
 
 distbin/ws_heartbeat320.gar:
@@ -10,3 +12,12 @@ distbin/ws_heartbeat401.gar:
 clean:
 	find . -name \*.42? -delete;
 	find . -name \*.gar -delete;
+
+post:
+	curl -X POST -H "Content-Type: application/json" -d "@test.json" $(URL)/configureDatabase 
+
+get:
+	curl -X GET $(URL)/info | jq .
+
+api:
+	curl -X GET $(URL)?openapi.json | jq .
