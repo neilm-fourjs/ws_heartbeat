@@ -1,5 +1,10 @@
 
-URL=http://localhost:9090/HeartBeat
+# local 
+#URL=http://localhost:9090/HeartBeat
+# pi Genero 3.20
+#URL=https://generodemos.dynu.net/z/ws/r/heartbeat/HeartBeat
+# pi Genero 4.01
+URL=https://generodemos.dynu.net/z/ws/r/heartbeat/HeartBeat
 
 all: distbin/ws_heartbeat320.gar distbin/ws_heartbeat401.gar
 

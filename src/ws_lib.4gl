@@ -2,6 +2,7 @@ IMPORT com
 IMPORT util
 IMPORT os
 IMPORT xml
+IMPORT security
 IMPORT FGL logging
 
 CONSTANT C_VER = "1.0"
@@ -145,4 +146,65 @@ FUNCTION service_reply(l_req STRING, l_stat STRING, l_jstr STRING) RETURNS STRIN
 	END IF
 	CALL logging.logIt("service_reply", l_reply)
 	RETURN l_reply
+END FUNCTION
+--------------------------------------------------------------------------------------------------------------
+FUNCTION encrypt( l_str STRING ) RETURNS STRING
+	DEFINE
+		l_symkey     xml.CryptoKey,
+		l_enc_string STRING
+
+	IF l_str.getLength() < 1 THEN
+		CALL logging.logIt(0, "encrypt: no string data to encrypt!")
+		RETURN NULL
+	END IF
+
+	TRY
+		# Create symmetric AES128 key for XML encryption purposes
+		LET l_symkey = xml.CryptoKey.Create("http://www.w3.org/2001/04/xmlenc#aes256-cbc")
+
+		# Get the file password for the given salt
+		CALL l_symkey.setKey(g2_getEncPasswd()) # password of 128 bits
+
+
+		LET l_enc_string = xml.Encryption.EncryptString(l_symkey, l_str)
+	CATCH
+		CALL logging.logIt(0, SFMT("encrypt: %1 (%2)", STATUS, SQLCA.sqlerrm))
+		RETURN NULL
+	END TRY
+
+	RETURN l_enc_string
+END FUNCTION
+--------------------------------------------------------------------------------
+FUNCTION decrypt( l_str STRING ) RETURNS STRING
+	DEFINE
+		l_symkey xml.CryptoKey,
+		l_ret    STRING
+
+	IF l_str.getLength() < 1 THEN
+		CALL logging.logIt(0, "decrypt: no data to dencrypt!")
+		RETURN NULL
+	END IF
+
+	TRY
+		# Create symmetric AES128 key for XML encryption purposes
+		LET l_symkey = xml.CryptoKey.Create("http://www.w3.org/2001/04/xmlenc#aes256-cbc")
+
+		# Get the file password for the given salt
+		CALL l_symkey.setKey(g2_getEncPasswd()) # password of 128 bits
+
+
+		LET l_ret = xml.Encryption.DecryptString(l_symkey, l_str)
+	CATCH
+		CALL logging.logIt(0, SFMT("NULL: %1 (%2)", STATUS, SQLCA.sqlerrm))
+		RETURN NULL
+	END TRY
+
+	RETURN l_ret
+END FUNCTION
+--------------------------------------------------------------------------------
+PRIVATE FUNCTION g2_getEncPasswd() RETURNS CHAR(32)
+	DEFINE l_ret CHAR(32)
+	LET l_ret = security.Base64.FromString(os.Path.dirName(os.Path.pwd()))
+	--DISPLAY SFMT("password clear: '%1' base64: '%2' ",os.Path.dirName(os.Path.pwd()), l_ret)
+	RETURN l_ret
 END FUNCTION

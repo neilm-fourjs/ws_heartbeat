@@ -68,13 +68,13 @@ PUBLIC FUNCTION info(l_db STRING ATTRIBUTE(WSQuery, WSOptional, WSName = "db"))
 	END IF
 
 	LET l_ret.db_connect = SFMT("%1+driver='%2'", l_ret.db_name, l_ret.db_driver)
-	IF l_ret.db_source IS NOT NULL THEN
+	IF l_ret.db_source.getLength() > 1 THEN
 		LET l_ret.db_connect = l_ret.db_connect.append(SFMT(",source='%1@%2'", l_ret.db_name, l_ret.db_source))
 	END IF
-	IF l_ret.db_user IS NOT NULL THEN
+	IF l_ret.db_user.getLength() > 1 THEN
 		LET l_ret.db_connect = l_ret.db_connect.append(SFMT(",username='%1'", l_ret.db_user))
 	END IF
-	IF l_db_pass IS NOT NULL THEN
+	IF l_db_pass.getLength() > 1 THEN
 		LET l_ret.db_connect = l_ret.db_connect.append(SFMT(",password='%1'", l_db_pass))
 	END IF
 	TRY
@@ -139,7 +139,7 @@ END FUNCTION
 PRIVATE FUNCTION saveDBdets() RETURNS()
 	DEFINE l_data TEXT
 	LOCATE l_data IN FILE C_WS_DATAFILE
-	LET l_data = util.JSON.stringify(m_db_conn_info)
+	LET l_data = encrypt( util.JSON.stringify(m_db_conn_info) )
 END FUNCTION
 --------------------------------------------------------------------------------------------------------------
 PRIVATE FUNCTION loadDBdets() RETURNS BOOLEAN
@@ -152,7 +152,7 @@ PRIVATE FUNCTION loadDBdets() RETURNS BOOLEAN
 
 	LOCATE l_data IN FILE C_WS_DATAFILE
 	TRY
-		CALL util.JSON.parse(l_data, m_db_conn_info)
+		CALL util.JSON.parse( decrypt(l_data) , m_db_conn_info)
 	CATCH
 		LET l_stat = STATUS
 		CALL logging.logIt(0, SFMT("Failed to parse '%1' %2 %3", C_WS_DATAFILE, l_stat, err_get(l_stat)))
